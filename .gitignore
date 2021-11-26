@@ -1,0 +1,17 @@
+.DS_Store
+.AppleDouble
+.LSOverride
+.vscode
+.idea
+
+node_modules/
+package-lock.json
+
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+

@@ -6,90 +6,113 @@
  * @date 2021/11/26 17:20:02
  */
 
-import chalk from 'chalk'
-import figlet from 'figlet'
-import { getThisYearMonth, getCalendarTable } from './calendar.js'
+import fs from 'iofs'
+import { getThisYearMonth, drawCalendar } from './calendar.js'
 
-const CAL_HEAD = ['日', '一', '二', '三', '四', '五', '六'].map((s, i) => {
-  if (i === 0 || i === 6) {
-    s = chalk.red.bold(s)
-  } else {
-    s = chalk.bold(s)
-  }
-  return ' '.repeat(4) + s + ' '.repeat(4) + chalk.grey('|')
-})
-const VLINE = chalk.grey('|')
-const DASHED_LINE = chalk.grey('|' + (' '.repeat(10) + '|').repeat(7))
-
+var { version } = JSON.parse(fs.cat('./package.json'))
+var argvs = process.argv.slice(2)
+var action = argvs.shift()
 var [year, month] = getThisYearMonth()
-var table = getCalendarTable(year, month)
-var line = 0
-var dateStr = figlet.textSync(`${year} . ${month + 1}`)
 
-function drawDashedLine(start = '', pipe = ' ') {
-  return chalk.grey(start + (pipe.repeat(10) + '|').repeat(7))
+function drawOneYear(y) {
+  for (let i = 0; i < 12; i++) {
+    drawCalendar(y, i)
+  }
 }
 
-dateStr = dateStr
-  .split('\n')
-  .map(s => chalk.grey('| ') + chalk.cyan(s) + ' '.repeat(77 - s.length - 2) + chalk.grey('|'))
-  .slice(0, -1)
-  .join('\n')
-
-console.log(chalk.grey(' ' + '_'.repeat(76)))
-console.log(dateStr)
-console.log(chalk.grey('|' + '_'.repeat(76) + '|'))
-console.log(drawDashedLine('|'))
-console.log(chalk.grey('|') + CAL_HEAD.join(''))
-console.log(drawDashedLine('|', '_'))
-
-// 渲染日历表格
-for (let i = 0; i < 3 * 5 + 1; i++) {
-  let tr = ''
-  for (let j = 0; j < 7; j++) {
-    let tmp = table[line + j]
-
-    if (!tmp) {
-      break
-    }
-
-    if (j === 0) {
-      tr += VLINE
-    }
-    switch (i % 3) {
-      case 0:
-        if (i === 0) {
-          tr += chalk.grey(' '.repeat(10) + '|')
-        } else {
-          tr += chalk.grey('-'.repeat(j === 6 ? 10 : 11) + (j === 6 ? '|' : ''))
-          if (j === 6) {
-            line += 7
-          }
-        }
-        break
-
-      case 1:
-        if (tmp.picked) {
-          tr += chalk.bgRed.whiteBright.bold(' '.repeat(4) + tmp.day + ' '.repeat(4)) + VLINE
-        } else {
-          if (tmp.weekend) {
-            tmp.day = chalk.redBright(tmp.day)
-          } else {
-            tmp.day = chalk.whiteBright(tmp.day)
-          }
-          tr += ' '.repeat(4) + tmp.day + ' '.repeat(4) + VLINE
-        }
-        break
-
-      case 2:
-        if (tmp.picked) {
-          tr += chalk.bgRed(' '.repeat(10)) + VLINE
-        } else {
-          tr += ' '.repeat(10) + VLINE
-        }
-        break
-    }
+function print(...args) {
+  args[0] = args[0].padEnd(20, ' ')
+  if (args.length > 1) {
+    args.splice(1, 0, '   -   ')
   }
+  console.log.apply(null, args)
+}
 
-  console.log(tr)
+function print_help() {
+  print('='.repeat(64))
+  print(`终端版万年历                    v${version},    作者: 宇天`)
+  print('='.repeat(64))
+  print('用法: cal [command] args...')
+  print('Commands:')
+  print('  -y {year}', '打印指定年份的日历')
+  print('  -m', '打印指定月份的日历')
+  print('  -h', '查看帮助文档')
+  print('  -v', '查看程序的版本')
+  process.exit()
+}
+
+switch (action) {
+  case '-y':
+    switch (argvs.length) {
+      // 再无其他参数, 由打印当前年份所有的日历
+      case 0:
+        drawOneYear(year)
+        break
+
+      // 有1~2个参数,  cal -y 2020 2,   cal -y 2020 5
+      case 1:
+      case 2:
+        year = +argvs.shift()
+        month = +argvs.shift()
+
+        if (year === year) {
+          if (month < 13 && month > 0) {
+            drawCalendar(year, month - 1)
+          } else {
+            drawOneYear(year)
+          }
+        } else {
+          console.log('-y 参数异常')
+        }
+        break
+
+      // 3个参数  cal -y 2020 -m 1
+      case 3:
+        action = argvs.shift()
+        month = +argvs.shift()
+        if (action === '-m' && month < 13 && month > 0) {
+          drawCalendar(year, month - 1)
+        } else {
+          console.log('-m 参数异常')
+        }
+        break
+      default:
+        console.log('-y 参数异常')
+        break
+    }
+
+    break
+
+  case '-m':
+    month = +argvs.shift()
+    if (month < 13 && month > 0) {
+      drawCalendar(year, month - 1)
+    } else {
+      console.log('-m 参数异常')
+    }
+    break
+
+  case '-v':
+    print(version)
+    process.exit()
+    break
+
+  default:
+    if (action) {
+      year = +action
+      month = +argvs.shift()
+      if (year === year) {
+        if (month < 13 && month > 0) {
+          drawCalendar(year, month - 1)
+        } else {
+          drawOneYear(year)
+        }
+      } else {
+        console.log('参数异常')
+      }
+    } else {
+      drawCalendar(year, month)
+    }
+
+    break
 }

@@ -8,6 +8,9 @@
 ```
 
 
+![demo1.png](./img/demo1.png)
+
+
 ## 安装
 ```bash
 npm i -g bash-calendar

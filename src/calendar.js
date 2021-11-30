@@ -5,7 +5,7 @@
  */
 
 import chalk from 'chalk'
-import { sloar2lunar } from './lunar.js'
+import { solar2lunar, getHSEBYear } from './lunar/index.js'
 
 const CAL_HEAD = ['日', '一', '二', '三', '四', '五', '六'].map((s, i) => {
   s = '星期' + s
@@ -63,13 +63,15 @@ export function getCalendarTable(year, month) {
     }
     if (i > 0) {
       let week = getFirstDay(year, month, i)
+      let lunar = solar2lunar(year, month, i)
       tmp.weekend = week === 0 || week === 6
       tmp.picked = !!isPicked({ year, month, day: i }, today)
-      tmp.lunar = sloar2lunar(year, month, i)
+      tmp.lunar = lunar.short
+      tmp.highlight = !!lunar.festival
     } else {
       // 从上个月中补齐第1周
       tmp.grey = 1
-      tmp.lunar = sloar2lunar(year, month - 1, lnums - -i)
+      tmp.lunar = solar2lunar(year, month - 1, lnums + i).short
     }
     list.push(tmp)
   }
@@ -81,7 +83,7 @@ export function getCalendarTable(year, month) {
   for (let day = 1; day <= nd; day++) {
     list.push({
       day: (day + '').padStart(2, '0'),
-      lunar: sloar2lunar(year, month + 1, day),
+      lunar: solar2lunar(year, month + 1, day).short,
       grey: 1
     })
   }
@@ -90,7 +92,7 @@ export function getCalendarTable(year, month) {
 
 // 画表头
 function drawThead(year, month) {
-  var dateStr = `${year}年${month + 1}月`
+  var dateStr = `${year}年${month + 1}月${' '.repeat(10)}${getHSEBYear(year, month)}`
 
   dateStr =
     chalk.grey('| ') + chalk.cyan(dateStr) + ' '.repeat(75 - dateStr.length - 2) + chalk.grey('|')
@@ -155,9 +157,12 @@ function drawTbody(year, month) {
           if (tmp.picked) {
             tr += chalk.bgRed.white.bold(' '.repeat(3) + tmp.lunar + ' '.repeat(3)) + VLINE
           } else {
-            tmp.lunar = chalk.grey(tmp.lunar)
-
-            tr += ' '.repeat(3) + tmp.lunar + ' '.repeat(3) + VLINE
+            let pad = 5
+            if (tmp.lunar) {
+              pad = (10 - tmp.lunar.length * 2) / 2
+              tmp.lunar = tmp.highlight ? chalk.cyan.dim(tmp.lunar) : chalk.grey(tmp.lunar)
+            }
+            tr += ' '.repeat(pad) + tmp.lunar + ' '.repeat(pad) + VLINE
           }
           break
       }

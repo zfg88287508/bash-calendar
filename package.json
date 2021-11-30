@@ -1,15 +1,14 @@
 {
   "name": "bash-calendar",
   "description": "终端版万年历",
-  "version": "0.0.1",
-  "type": "module",
+  "version": "1.0.0",
   "author": "yutent <yutent.io@gmail.com>",
   "bin": {
     "calendar": "index.js",
     "cal": "index.js"
   },
-  "dependencies": {
-    "chalk": "^4.0.0"
+  "engines": {
+    "node": ">=10.0.0"
   },
   "repository": {
     "type": "git",

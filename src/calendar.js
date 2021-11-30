@@ -95,7 +95,7 @@ function drawThead(year, month) {
   var dateStr = `${year}年${month + 1}月${' '.repeat(10)}${getHSEBYear(year, month)}`
 
   dateStr =
-    chalk.grey('| ') + chalk.cyan(dateStr) + ' '.repeat(75 - dateStr.length - 2) + chalk.grey('|')
+    chalk.grey('| ') + chalk.cyan(dateStr) + ' '.repeat(71 - dateStr.length - 2) + chalk.grey('|')
 
   console.log(chalk.grey(' ' + '_'.repeat(76)))
   console.log(chalk.grey('|' + ' '.repeat(76) + '|'))

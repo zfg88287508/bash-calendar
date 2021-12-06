@@ -137,7 +137,7 @@ function drawTbody(year, month) {
 
         case 1:
           if (tmp.picked) {
-            tr += chalk.bgRed.whiteBright.bold(' '.repeat(4) + tmp.day + ' '.repeat(4)) + VLINE
+            tr += '  ' + chalk.bgRed.whiteBright.bold('  ' + tmp.day + '  ') + '  ' + VLINE
           } else {
             // 有grey字段的, 优先置灰, 这种为 非本月份的日期
             if (tmp.grey) {
@@ -154,15 +154,25 @@ function drawTbody(year, month) {
           break
 
         case 2:
+          let pad = 5
+          if (tmp.lunar) {
+            pad = (10 - tmp.lunar.length * 2) / 2 - 2
+          }
           if (tmp.picked) {
-            tr += chalk.bgRed.white.bold(' '.repeat(3) + tmp.lunar + ' '.repeat(3)) + VLINE
+            tr +=
+              '  ' +
+              chalk.bgRed.white.bold(' '.repeat(pad) + tmp.lunar + ' '.repeat(pad)) +
+              '  ' +
+              VLINE
           } else {
-            let pad = 5
             if (tmp.lunar) {
-              pad = (10 - tmp.lunar.length * 2) / 2
-              tmp.lunar = tmp.highlight ? chalk.cyan.dim(tmp.lunar) : chalk.grey(tmp.lunar)
+              tmp.lunar = tmp.highlight
+                ? chalk.cyan.dim(tmp.lunar)
+                : tmp.weekend
+                ? chalk.red.dim(tmp.lunar)
+                : chalk.grey(tmp.lunar)
             }
-            tr += ' '.repeat(pad) + tmp.lunar + ' '.repeat(pad) + VLINE
+            tr += ' '.repeat(pad + 2) + tmp.lunar + ' '.repeat(pad + 2) + VLINE
           }
           break
       }

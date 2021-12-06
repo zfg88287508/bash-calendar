@@ -285,7 +285,7 @@ export const FESTIVALS = {
 
 // 公历节日(不全, 仅国内常用的)
 export const SOLAR_FESTIVALS = {
-  '1.1': '元旦节',
+  '1.1': '元旦',
   '2.14': '情人节',
   '3.8': '妇女节',
   '3.12': '植树节',

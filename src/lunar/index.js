@@ -12,7 +12,9 @@ import {
   EARTHLY_BRANCHES,
   ZODIAC,
   FESTIVALS,
-  SOLAR_FESTIVALS
+  SOLAR_FESTIVALS,
+  SOLAR_TERMS,
+  SOLAR_TERMS_YEARS
 } from './config.js'
 
 /**
@@ -24,7 +26,8 @@ export function solar2lunar(year = 1901, month = 0, day = 1) {
   var timestamp = Date.UTC(year, month, day) // 传入日期的时间戳
   var offset = (timestamp - baseDate) / (24 * 60 * 60 * 1000) + 1 // 计算与的相差天数, 有1天的修正
   var months, leap
-  var result = { short: '' }
+  var result = { short: '', solarTerms: '', festival: '', lunarFestival: '' }
+  var solarTermsYear = SOLAR_TERMS_YEARS[year - 1900]
 
   if (year < 1901 || year > 2100) {
     return result
@@ -63,16 +66,28 @@ export function solar2lunar(year = 1901, month = 0, day = 1) {
     }
   }
 
+  // 二十四节气
+  if (solarTermsYear) {
+    let tmp = solarTermsYear.slice(month * 4, (month + 1) * 4)
+    if (+tmp.slice(0, 2) === day) {
+      result.solarTerms = SOLAR_TERMS[month * 2]
+    } else if (+tmp.slice(2) === day) {
+      result.solarTerms = SOLAR_TERMS[month * 2 + 1]
+    }
+  }
+
   // 公历节日
-  result.festival = SOLAR_FESTIVALS[`${month + 1}.${day}`]
+  result.festival = SOLAR_FESTIVALS[`${month + 1}.${day}`] || ''
 
   // 非闰月才有农历节日
   if (!result.leap) {
     // 修正没有年三十的除夕
     if (result.month === 11 && result.day === months.pop()) {
       result.festival = FESTIVALS['12.30']
+      result.lunarFestival = FESTIVALS['12.30']
     } else {
       result.festival = FESTIVALS[`${result.month + 1}.${result.day}`] || result.festival
+      result.lunarFestival = FESTIVALS[`${result.month + 1}.${result.day}`] || ''
     }
   }
 
@@ -90,9 +105,12 @@ export function solar2lunar(year = 1901, month = 0, day = 1) {
   } else if (result.day === 30) {
     result.dayCN = LUNAR_DAY[3] + LUNAR_DAY[10]
   }
+  // console.log(result)
 
   result.short = result.festival
     ? result.festival
+    : result.solarTerms
+    ? result.solarTerms
     : result.day === 1
     ? result.monthCN
     : result.dayCN

@@ -67,7 +67,7 @@ export function getCalendarTable(year, month) {
       tmp.weekend = week === 0 || week === 6
       tmp.picked = !!isPicked({ year, month, day: i }, today)
       tmp.lunar = lunar.short
-      tmp.highlight = !!lunar.festival
+      tmp.highlight = !!lunar.festival || !!lunar.solarTerms
     } else {
       // 从上个月中补齐第1周
       tmp.grey = 1
@@ -137,7 +137,7 @@ function drawTbody(year, month) {
 
         case 1:
           if (tmp.picked) {
-            tr += '  ' + chalk.bgRed.whiteBright.bold('  ' + tmp.day + '  ') + '  ' + VLINE
+            tr += '  ' + chalk.bgBlue.whiteBright.bold('  ' + tmp.day + '  ') + '  ' + VLINE
           } else {
             // 有grey字段的, 优先置灰, 这种为 非本月份的日期
             if (tmp.grey) {
@@ -161,7 +161,7 @@ function drawTbody(year, month) {
           if (tmp.picked) {
             tr +=
               '  ' +
-              chalk.bgRed.white.bold(' '.repeat(pad) + tmp.lunar + ' '.repeat(pad)) +
+              chalk.bgBlue.white.bold(' '.repeat(pad) + tmp.lunar + ' '.repeat(pad)) +
               '  ' +
               VLINE
           } else {

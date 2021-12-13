@@ -1,3 +1,5 @@
+import { join } from 'path'
+
 // 农历1900-2100年查询表
 export const LUNAR_YEARS = [
   0x04bd8, // 1900
@@ -505,3 +507,5 @@ export const SOLAR_FESTIVALS = {
   '12.24': '平安夜',
   '12.25': '圣诞节'
 }
+
+export const CACHE_FILE = join(process.env.HOME, '.festivals.json')

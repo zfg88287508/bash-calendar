@@ -56,34 +56,60 @@ export function getCalendarTable(year, month) {
   var nd = 0 // 最后一周需要补多少天, 具体看下方的计算
   var today = getToday()
   var list = []
+  var lyear, lmonth, nyear, nmonth
+
+  // 修正年月日的数值, 以匹配节假日
+  if (ld < 1) {
+    lyear = year
+    lmonth = month - 1
+    if (lmonth < 0) {
+      lmonth = 11
+      lyear--
+    }
+  }
 
   for (let i = ld; i <= nums; i++) {
     let tmp = {
       day: i < 1 ? lnums - -i : (i + '').padStart(2, '0')
     }
+    let lunar
+
     if (i > 0) {
       let week = getFirstDay(year, month, i)
-      let lunar = solar2lunar(year, month, i)
+      lunar = solar2lunar(year, month, i)
       tmp.weekend = week === 0 || week === 6
       tmp.picked = !!isPicked({ year, month, day: i }, today)
-      tmp.lunar = lunar.short
       tmp.highlight = !!lunar.festival || !!lunar.solarTerms
     } else {
       // 从上个月中补齐第1周
+      lunar = solar2lunar(lyear, lmonth, lnums + i)
       tmp.grey = 1
-      tmp.lunar = solar2lunar(year, month - 1, lnums + i).short
     }
+    tmp.lunar = lunar.short
+    tmp.custom = lunar.custom
     list.push(tmp)
   }
 
   nd = list.length % 7
   nd = nd > 0 ? 7 - nd : 0
 
+  // 修正年月日的数值, 以匹配节假日
+  if (nd > 0) {
+    nyear = year
+    nmonth = month + 1
+    if (nmonth > 11) {
+      nmonth = 0
+      nyear++
+    }
+  }
+
   // 最后一行不够1周时, 从下个月的日期中补齐
   for (let day = 1; day <= nd; day++) {
+    let lunar = solar2lunar(nyear, nmonth, day)
     list.push({
       day: (day + '').padStart(2, '0'),
-      lunar: solar2lunar(year, month + 1, day).short,
+      lunar: lunar.short,
+      custom: lunar.custom,
       grey: 1
     })
   }
@@ -136,8 +162,12 @@ function drawTbody(year, month) {
           break
 
         case 1:
+          let right = '  '
+          if (tmp.custom) {
+            right = chalk.blue(tmp.custom)
+          }
           if (tmp.picked) {
-            tr += '  ' + chalk.bgBlue.whiteBright.bold('  ' + tmp.day + '  ') + '  ' + VLINE
+            tr += '  ' + chalk.bgBlue.whiteBright.bold('  ' + tmp.day + '  ') + right + VLINE
           } else {
             // 有grey字段的, 优先置灰, 这种为 非本月份的日期
             if (tmp.grey) {
@@ -149,7 +179,7 @@ function drawTbody(year, month) {
                 tmp.day = chalk.whiteBright.bold(tmp.day)
               }
             }
-            tr += ' '.repeat(4) + tmp.day + ' '.repeat(4) + VLINE
+            tr += ' '.repeat(4) + tmp.day + '  ' + right + VLINE
           }
           break
 

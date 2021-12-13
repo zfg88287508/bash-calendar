@@ -4,6 +4,8 @@
  * @date 2021/11/30 13:31:34
  */
 
+import fs from 'fs'
+
 import {
   LUNAR_YEARS,
   LUNAR_MONTH,
@@ -14,8 +16,17 @@ import {
   FESTIVALS,
   SOLAR_FESTIVALS,
   SOLAR_TERMS,
-  SOLAR_TERMS_YEARS
+  SOLAR_TERMS_YEARS,
+  CACHE_FILE
 } from './config.js'
+
+let CUSTOM_FESTIVALS = {}
+
+if (fs.existsSync(CACHE_FILE)) {
+  try {
+    CUSTOM_FESTIVALS = JSON.parse(fs.readFileSync(CACHE_FILE))
+  } catch (e) {}
+}
 
 /**
  * 公历转农历函数
@@ -28,6 +39,7 @@ export function solar2lunar(year = 1901, month = 0, day = 1) {
   var months, leap
   var result = { short: '', solarTerms: '', festival: '', lunarFestival: '' }
   var solarTermsYear = SOLAR_TERMS_YEARS[year - 1900]
+  var customKey = `${year}.${month + 1}.${day}`
 
   if (year < 1901 || year > 2100) {
     return result
@@ -65,6 +77,9 @@ export function solar2lunar(year = 1901, month = 0, day = 1) {
       break
     }
   }
+
+  // 自定义节假日
+  result.custom = CUSTOM_FESTIVALS[customKey] || ''
 
   // 二十四节气
   if (solarTermsYear) {

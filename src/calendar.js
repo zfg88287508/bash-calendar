@@ -164,7 +164,11 @@ function drawTbody(year, month) {
         case 1:
           let right = '  '
           if (tmp.custom) {
-            right = chalk.blue(tmp.custom)
+            if (tmp.custom === '班') {
+              right = chalk.red(tmp.custom)
+            } else {
+              right = chalk.green.dim(tmp.custom)
+            }
           }
           if (tmp.picked) {
             tr += '  ' + chalk.bgBlue.whiteBright.bold('  ' + tmp.day + '  ') + right + VLINE

@@ -1,7 +1,7 @@
 {
   "name": "bash-calendar",
   "description": "终端版万年历",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": "yutent <yutent.io@gmail.com>",
   "bin": {
     "calendar": "index.js",

@@ -189,15 +189,18 @@ function drawTbody(year, month) {
 
         case 2:
           let pad = 5
+          let space = ''
+          let padSpace = '  '
           if (tmp.lunar) {
             pad = (10 - tmp.lunar.length * 2) / 2 - 2
           }
+          if (pad > 0) {
+            space = ' '.repeat(pad)
+          } else {
+            padSpace = padSpace.slice(0, pad)
+          }
           if (tmp.picked) {
-            tr +=
-              '  ' +
-              chalk.bgBlue.white.bold(' '.repeat(pad) + tmp.lunar + ' '.repeat(pad)) +
-              '  ' +
-              VLINE
+            tr += padSpace + chalk.bgBlue.white.bold(space + tmp.lunar + space) + padSpace + VLINE
           } else {
             if (tmp.lunar) {
               tmp.lunar = tmp.highlight

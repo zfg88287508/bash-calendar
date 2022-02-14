@@ -194,7 +194,7 @@ function drawTbody(year, month) {
           if (tmp.lunar) {
             pad = (10 - tmp.lunar.length * 2) / 2 - 2
           }
-          if (pad > 0) {
+          if (pad >= 0) {
             space = ' '.repeat(pad)
           } else {
             padSpace = padSpace.slice(0, pad)

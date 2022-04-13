@@ -508,4 +508,4 @@ export const SOLAR_FESTIVALS = {
   '12.25': '圣诞节'
 }
 
-export const CACHE_FILE = join(process.env.HOME, '.festivals.json')
+export const CACHE_FILE = join(process.env.HOME || process.env.LOCALAPPDATA, '.festivals.json')

@@ -79,8 +79,9 @@ switch (action) {
 
       // 3个参数  cal -y 2020 -m 1
       case 3:
+        year = +argvs.shift()
         action = argvs.shift()
-        month = +argvs.shift()
+        month = +argvs.pop()
         if (action === '-m' && month < 13 && month > 0) {
           drawCalendar(year, month - 1)
         } else {

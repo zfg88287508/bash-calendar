@@ -12,14 +12,16 @@ const CAL_HEAD = ['日', '一', '二', '三', '四', '五', '六'].map((s, i) =>
   if (i === 0 || i === 6) {
     s = chalk.red(s)
   }
-  return '  ' + s + '  ' + chalk.grey('|')
+  return '  ' + s + '  ' + chalk.grey('│')
 })
-const VLINE = chalk.grey('|')
-const DASHED_LINE = chalk.grey('|' + (' '.repeat(10) + '|').repeat(7))
+const VLINE = chalk.grey('│')
+const VLINE2 = chalk.grey('├')
+const VLINE3 = chalk.grey('└')
+const DASHED_LINE = chalk.grey('│' + (' '.repeat(10) + '│').repeat(7))
 
 // 画间隔线
 function drawDashedLine(start = '', pipe = ' ') {
-  return chalk.grey(start + (pipe.repeat(10) + '|').repeat(7))
+  return chalk.grey(start + (pipe.repeat(10) + '│').repeat(7))
 }
 
 //获取今年的年份/月份，返回的是数组
@@ -121,23 +123,27 @@ function drawThead(year, month) {
   var dateStr = `${year}年${month + 1}月${' '.repeat(10)}${getHSEBYear(year, month)}`
 
   dateStr =
-    chalk.grey('| ') + chalk.cyan(dateStr) + ' '.repeat(71 - dateStr.length - 2) + chalk.grey('|')
+    chalk.grey('│ ') + chalk.cyan(dateStr) + ' '.repeat(71 - dateStr.length - 2) + chalk.grey('│')
 
-  console.log(chalk.grey(' ' + '_'.repeat(76)))
-  console.log(chalk.grey('|' + ' '.repeat(76) + '|'))
+  console.log(chalk.grey('┌─' + '─'.repeat(75) + '┐'))
+  console.log(chalk.grey('│' + ' '.repeat(76) + '│'))
   console.log(dateStr)
-  console.log(chalk.grey('|' + '_'.repeat(76) + '|'))
-  console.log(drawDashedLine('|'))
-  console.log(chalk.grey('|') + CAL_HEAD.join(''))
-  console.log(drawDashedLine('|', '_'))
+  console.log(chalk.grey('│' + ' '.repeat(76) + '│'))
+  console.log(chalk.grey('├' + '──────────┬'.repeat(7).slice(0, -1) + '┤'))
+  // 以下是星期的表头
+  console.log(chalk.grey('│') + CAL_HEAD.join(''))
+  console.log(chalk.grey('├' + '──────────┼'.repeat(7).slice(0, -1) + '┤'))
+  // ┘└ ┬ ┴ ├ ┤ ┼
 }
 
 // 画日期
 function drawTbody(year, month) {
   var table = getCalendarTable(year, month)
   var line = 0
+  var maxi = 3 * Math.ceil(table.length / 7)
 
-  for (let i = 0; i < 3 * Math.ceil(table.length / 7) + 1; i++) {
+  // i 是 纵坐标,  j是横坐标格子
+  for (let i = 0; i < maxi + 1; i++) {
     let tr = ''
     for (let j = 0; j < 7; j++) {
       let tmp = table[line + j]
@@ -146,15 +152,21 @@ function drawTbody(year, month) {
         break
       }
 
+      if (i === 0 && j === 0) {
+        continue
+      }
+
       if (j === 0) {
-        tr += VLINE
+        tr += i % 3 === 0 ? (i === maxi ? VLINE3 : VLINE2) : VLINE
       }
       switch (i % 3) {
         case 0:
           if (i === 0) {
-            tr += chalk.grey(' '.repeat(10) + '|')
+            break
           } else {
-            tr += chalk.grey('-'.repeat(j === 6 ? 10 : 11) + (j === 6 ? '|' : ''))
+            tr += chalk.grey(
+              '──────────' + (j === 6 ? (i === maxi ? '┘' : '┤') : i === maxi ? '┴' : '┼')
+            )
             if (j === 6) {
               line += 7
             }
@@ -167,20 +179,20 @@ function drawTbody(year, month) {
             if (tmp.custom === '班') {
               right = chalk.red(tmp.custom)
             } else {
-              right = chalk.green.dim(tmp.custom)
+              right = chalk.green(tmp.custom)
             }
           }
           if (tmp.picked) {
-            tr += '  ' + chalk.bgBlue.whiteBright.bold('  ' + tmp.day + '  ') + right + VLINE
+            tr += '  ' + chalk.bgBlue.whiteBright('  ' + tmp.day + '  ') + right + VLINE
           } else {
             // 有grey字段的, 优先置灰, 这种为 非本月份的日期
             if (tmp.grey) {
               tmp.day = chalk.grey(tmp.day)
             } else {
               if (tmp.weekend) {
-                tmp.day = chalk.redBright.bold(tmp.day)
+                tmp.day = chalk.red(tmp.day)
               } else {
-                tmp.day = chalk.whiteBright.bold(tmp.day)
+                tmp.day = chalk.whiteBright(tmp.day)
               }
             }
             tr += ' '.repeat(4) + tmp.day + '  ' + right + VLINE
@@ -200,13 +212,13 @@ function drawTbody(year, month) {
             padSpace = padSpace.slice(0, pad)
           }
           if (tmp.picked) {
-            tr += padSpace + chalk.bgBlue.white.bold(space + tmp.lunar + space) + padSpace + VLINE
+            tr += padSpace + chalk.bgBlue.white(space + tmp.lunar + space) + padSpace + VLINE
           } else {
             if (tmp.lunar) {
               tmp.lunar = tmp.highlight
-                ? chalk.cyan.dim(tmp.lunar)
+                ? chalk.cyan(tmp.lunar)
                 : tmp.weekend
-                ? chalk.red.dim(tmp.lunar)
+                ? chalk.redBright(tmp.lunar)
                 : chalk.grey(tmp.lunar)
             }
             tr += ' '.repeat(pad + 2) + tmp.lunar + ' '.repeat(pad + 2) + VLINE
@@ -215,7 +227,9 @@ function drawTbody(year, month) {
       }
     }
 
-    console.log(tr)
+    if (tr) {
+      console.log(tr)
+    }
   }
   console.log('') // 再打印一个空行, 用于分隔多个日历
 }

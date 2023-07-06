@@ -19,6 +19,9 @@ var [year, month] = getThisYearMonth()
 function drawOneYear(y) {
   for (let i = 0; i < 12; i++) {
     drawCalendar(y, i)
+    if (i < 11) {
+      console.log('') // 再打印一个空行, 用于分隔多个日历
+    }
   }
 }
 

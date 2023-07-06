@@ -231,7 +231,6 @@ function drawTbody(year, month) {
       console.log(tr)
     }
   }
-  console.log('') // 再打印一个空行, 用于分隔多个日历
 }
 
 // 渲染日历
